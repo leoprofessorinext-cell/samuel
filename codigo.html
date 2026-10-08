@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DH Burger House</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#111;color:white;font-family:Arial,sans-serif}
+header{background:#e63900;text-align:center;padding:25px}
+header h1{margin:0;font-size:34px}
+main{max-width:1000px;margin:auto;padding:22px}
+h2{color:#ff5722}
+.categoria{margin-bottom:32px}
+.produto{background:#222;padding:18px;margin:12px 0;border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.produto h3{margin:0 0 8px}
+.produto p{color:#bbb;margin:0}
+.preco{color:#4dff88;font-weight:bold;font-size:19px;display:block;margin-bottom:8px}
+button{background:#e63900;color:white;border:0;padding:11px 15px;border-radius:7px;cursor:pointer;font-weight:bold}
+button:hover{background:#ff5722}
+#carrinho,#pagamento,#acompanhamento{display:none}
+.item-carrinho{background:#252525;padding:15px;margin:12px 0;border-radius:9px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.item-carrinho small{color:#ccc}
+.acoes{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.remover{background:#a50000}
+.voltar{background:#555}
+.total{font-size:24px;text-align:right;border-top:1px solid #555;padding-top:18px;margin-top:20px}
+.finalizar{background:#079b42;width:100%;margin-top:15px;padding:15px;font-size:17px}
+.vazio{color:#bbb;text-align:center;padding:20px}
+.caixa{background:#202020;max-width:600px;margin:25px auto;padding:25px;border-radius:15px;border:1px solid #444}
+.grupo{margin:20px 0}
+.grupo label,.opcao{display:flex;justify-content:space-between;gap:12px;padding:12px;background:#2b2b2b;border-radius:7px;margin:7px 0;align-items:center}
+.grupo input[type=checkbox],.opcao input{accent-color:#ff5722;width:18px;height:18px}
+select,input[type=number]{background:#333;color:white;border:1px solid #555;padding:10px;border-radius:6px}
+.preco-final{font-size:24px;color:#4dff88;font-weight:bold;margin:20px 0}
+.botoes{display:flex;gap:10px}
+.botoes button{flex:1}
+.cancelar{background:#555}
+.status{background:#292929;padding:18px;border-radius:10px;line-height:2.2}
+@media(max-width:600px){
+.produto{align-items:flex-start}
+.item-carrinho{align-items:flex-start;flex-direction:column}
+header h1{font-size:27px}
+main{padding:14px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🍔 DH Burger House</h1>
+<p>Seu lanche favorito está aqui!</p>
+<button onclick="abrirCarrinho()">🛒 Carrinho (<span id="contador">0</span>)</button>
+</header>
+
+<!-- CARDÁPIO -->
+<main id="menu">
+
+<section class="categoria">
+<h2>🍔 Hambúrgueres</h2>
+
+<div class="produto">
+<div><h3>Classic Burger</h3><p>Carne, queijo, alface, tomate e molho especial.</p></div>
+<div><span class="preco">R$ 24,90</span><button onclick="personalizar('Classic Burger',24.90)">Pedir</button></div>
+</div>
+
+<div class="produto">
+<div><h3>Cheddar Bacon</h3><p>Carne, cheddar cremoso e bacon crocante.</p></div>
+<div><span class="preco">R$ 29,90</span><button onclick="personalizar('Cheddar Bacon',29.90)">Pedir</button></div>
+</div>
+
+<div class="produto">
+<div><h3>Duplo Especial</h3><p>Dois hambúrgueres, queijo, bacon e molho da casa.</p></div>
+<div><span class="preco">R$ 34,90</span><button onclick="personalizar('Duplo Especial',34.90)">Pedir</button></div>
+</div>
+</section>
+
+<section class="categoria">
+<h2>🍟 Porções</h2>
+<div class="produto">
+<div><h3>Batata Frita</h3><p>Batatas crocantes com sal especial.</p></div>
+<div><span class="preco">R$ 15,00</span><button onclick="personalizar('Batata Frita',15)">Pedir</button></div>
+</div>
+<div class="produto">
+<div><h3>Batata Cheddar e Bacon</h3><p>Batata frita, cheddar e bacon.</p></div>
+<div><span class="preco">R$ 22,90</span><button onclick="personalizar('Batata Cheddar e Bacon',22.90)">Pedir</button></div>
+</div>
+</section>
+
+<section class="categoria">
+<h2>🥤 Bebidas</h2>
+<div class="produto">
+<div><h3>Refrigerante Lata</h3><p>350 ml.</p></div>
+<div><span class="preco">R$ 6,00</span><button onclick="personalizar('Refrigerante Lata',6)">Pedir</button></div>
+</div>
+<div class="produto">
+<div><h3>Refrigerante 2 L</h3><p>Ideal para compartilhar.</p></div>
+<div><span class="preco">R$ 12,00</span><button onclick="personalizar('Refrigerante 2 L',12)">Pedir</button></div>
+</div>
+<div class="produto">
+<div><h3>Suco Natural</h3><p>Suco de laranja gelado.</p></div>
+<div><span class="preco">R$ 8,00</span><button onclick="personalizar('Suco Natural',8)">Pedir</button></div>
+</div>
+</section>
+</main>
+
+<!-- CARRINHO -->
+<main id="carrinho">
+<button class="voltar" onclick="voltarMenu()">← Voltar ao cardápio</button>
+<h2>🛒 Seu carrinho</h2>
+<div id="listaCarrinho"></div>
+<div class="total">Total: R$ <span id="total">0,00</span></div>
+<button class="finalizar" onclick="irParaPagamento()">Ir para pagamento</button>
+</main>
+
+<!-- PERSONALIZAÇÃO -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:#000c;z-index:10;overflow:auto;padding:20px">
+<div class="caixa">
+<h2>🍔 Personalize seu pedido</h2>
+<p id="nomeProduto"></p>
+
+<div class="grupo">
+<h3>🥫 Molhos e adicionais</h3>
+<label><span>Barbecue (+ R$ 2,00)</span><input type="checkbox" class="extra" data-nome="Barbecue" data-preco="2" onchange="calcularPersonalizacao()"></label>
+<label><span>Maionese temperada (+ R$ 2,00)</span><input type="checkbox" class="extra" data-nome="Maionese temperada" data-preco="2" onchange="calcularPersonalizacao()"></label>
+<label><span>Cheddar extra (+ R$ 4,00)</span><input type="checkbox" class="extra" data-nome="Cheddar extra" data-preco="4" onchange="calcularPersonalizacao()"></label>
+</div>
+
+<div class="grupo">
+<h3>🥤 Bebida extra</h3>
+<select id="bebida" onchange="calcularPersonalizacao()" style="width:100%">
+<option value="">Sem bebida extra</option>
+<option value="Refrigerante Lata|6">Refrigerante lata (+ R$ 6,00)</option>
+<option value="Refrigerante 2 L|12">Refrigerante 2 L (+ R$ 12,00)</option>
+<option value="Suco Natural|8">Suco natural (+ R$ 8,00)</option>
+</select>
+</div>
+
+<div class="grupo">
+<h3>🍟 Combo</h3>
+<label><span>Combo: batata + refrigerante lata (+ R$ 12,00)</span><input type="checkbox" id="combo" onchange="calcularPersonalizacao()"></label>
+<small style="color:#bbb">O combo substitui a bebida extra escolhida acima.</small>
+</div>
+
+<div class="grupo">
+<h3>Quantidade</h3>
+<input id="quantidade" type="number" min="1" max="20" value="1" oninput="calcularPersonalizacao()">
+</div>
+
+<div class="preco-final">Total: R$ <span id="precoPersonalizado">0,00</span></div>
+<div class="botoes">
+<button class="cancelar" onclick="fecharModal()">Cancelar</button>
+<button onclick="confirmarPedido()">Adicionar ao carrinho</button>
+</div>
+</div>
+</div>
+
+<!-- PAGAMENTO -->
+<main id="pagamento">
+<div class="caixa">
+<button class="voltar" onclick="voltarCarrinho()">← Voltar</button>
+<h2>💳 Forma de pagamento</h2>
+<p>Escolha como deseja pagar.</p>
+
+<label class="opcao"><span>💵 Dinheiro</span><input type="radio" name="pagamento" value="Dinheiro" onchange="mostrarOpcaoPagamento()"></label>
+<label class="opcao"><span>📱 PIX</span><input type="radio" name="pagamento" value="PIX" onchange="mostrarOpcaoPagamento()"></label>
+<label class="opcao"><span>💳 Cartão de débito</span><input type="radio" name="pagamento" value="Cartão de Débito" onchange="mostrarOpcaoPagamento()"></label>
+<label class="opcao"><span>💳 Cartão de crédito</span><input type="radio" name="pagamento" value="Cartão de Crédito" onchange="mostrarOpcaoPagamento()"></label>
+
+<div id="detalhesPagamento" style="margin-top:20px"></div>
+<h2>Total: R$ <span id="totalPagamento">0,00</span></h2>
+<button class="finalizar" onclick="confirmarPagamento()">Confirmar pedido</button>
+</div>
+</main>
+
+<!-- ACOMPANHAMENTO -->
+<main id="acompanhamento">
+<div class="caixa" style="text-align:center">
+<div style="font-size:55px">🍔 🛵</div>
+<h2 style="color:#4dff88">Pedido confirmado!</h2>
+<p>Obrigado por escolher a DH Burger House.</p>
+
+<div class="status">
+<p>👨‍🍳 Tempo estimado de preparo</p>
+<h2 style="color:white">15–25 minutos</h2>
+<p>🛵 Tempo estimado de entrega</p>
+<h2 style="color:white">20–35 minutos</h2>
+<p>⏱️ Tempo total estimado</p>
+<h2 style="color:#4dff88">35–60 minutos</h2>
+</div>
+
+<h3>📍 Acompanhe seu pedido</h3>
+<div id="statusPedido" class="status"></div>
+<h3>🧾 Resumo do pedido</h3>
+<div id="resumoPedido" style="text-align:left"></div>
+<h2>Total: R$ <span id="totalFinal">0,00</span></h2>
+<p id="formaFinal"></p>
+<p style="color:#aaa;font-size:13px">Previsões ilustrativas. O tempo real pode variar.</p>
+<button onclick="novoPedido()" style="width:100%;padding:15px">Fazer novo pedido</button>
+</div>
+</main>
+
+<script>
+let carrinho=[];
+let produtoAtual=null;
+let temporizadorStatus=null;
+
+function dinheiro(v){
+ return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function personalizar(nome,preco){
+ produtoAtual={nome,preco};
+ document.getElementById("nomeProduto").textContent=nome+" — R$ "+dinheiro(preco);
+ document.querySelectorAll(".extra").forEach(e=>e.checked=false);
+ document.getElementById("bebida").value="";
+ document.getElementById("combo").checked=false;
+ document.getElementById("quantidade").value=1;
+ document.getElementById("modal").style.display="block";
+ calcularPersonalizacao();
+}
+
+function fecharModal(){
+ document.getElementById("modal").style.display="none";
+}
+
+function calcularPersonalizacao(){
+ if(!produtoAtual)return;
+ let extras=[...document.querySelectorAll(".extra:checked")];
+ let adicional=extras.reduce((s,e)=>s+Number(e.dataset.preco),0);
+ let bebida=document.getElementById("bebida").value;
+ let combo=document.getElementById("combo").checked;
+ if(combo)adicional+=12;
+ else if(bebida)adicional+=Number(bebida.split("|")[1]);
+ let qtd=Math.max(1,Math.min(20,Number(document.getElementById("quantidade").value)||1));
+ document.getElementById("precoPersonalizado").textContent=dinheiro((produtoAtual.preco+adicional)*qtd);
+}
+
+function confirmarPedido(){
+ if(!produtoAtual)return;
+ let extras=[...document.querySelectorAll(".extra:checked")].map(e=>({nome:e.dataset.nome,preco:Number(e.dataset.preco)}));
+ let bebida=document.getElementById("bebida").value;
+ let combo=document.getElementById("combo").checked;
+ let qtd=Math.max(1,Math.min(20,Number(document.getElementById("quantidade").value)||1));
+ if(combo)extras.push({nome:"Combo (batata + refrigerante lata)",preco:12});
+ else if(bebida){let[nome,preco]=bebida.split("|");extras.push({nome,preco:Number(preco)});}
+ let adicional=extras.reduce((s,e)=>s+e.preco,0);
+ carrinho.push({nome:produtoAtual.nome,preco:produtoAtual.preco,extras,quantidade:qtd,unitario:produtoAtual.preco+adicional});
+ fecharModal();
+ atualizarCarrinho();
+ abrirCarrinho();
+}
+
+function atualizarCarrinho(){
+ let lista=document.getElementById("listaCarrinho");
+ lista.innerHTML="";
+ let total=0,contador=0;
+ if(!carrinho.length)lista.innerHTML='<p class="vazio">Seu carrinho está vazio.</p>';
+ carrinho.forEach((item,i)=>{
+  let subtotal=item.unitario*item.quantidade;
+  total+=subtotal;contador+=item.quantidade;
+  let div=document.createElement("div");div.className="item-carrinho";
+  let detalhes=document.createElement("div");
+  let titulo=document.createElement("strong");titulo.textContent=item.nome;detalhes.appendChild(titulo);
+  let br=document.createElement("br");detalhes.appendChild(br);
+  let info=document.createElement("small");info.textContent=item.extras.length?"Adicionais: "+item.extras.map(e=>e.nome).join(", "):"Sem adicionais";detalhes.appendChild(info);
+  let linha=document.createElement("p");linha.textContent="R$ "+dinheiro(subtotal);detalhes.appendChild(linha);
+  let acoes=document.createElement("div");acoes.className="acoes";
+  let menos=document.createElement("button");menos.textContent="−";menos.onclick=()=>mudarQuantidade(i,-1);
+  let qtd=document.createElement("span");qtd.textContent=item.quantidade;
+  let mais=document.createElement("button");mais.textContent="+";mais.onclick=()=>mudarQuantidade(i,1);
+  let remover=document.createElement("button");remover.className="remover";remover.textContent="Remover";remover.onclick=()=>{carrinho.splice(i,1);atualizarCarrinho();};
+  acoes.append(menos,qtd,mais,remover);div.append(detalhes,acoes);lista.appendChild(div);
+ });
+ document.getElementById("total").textContent=dinheiro(total);
+ document.getElementById("contador").textContent=contador;
+}
+
+function mudarQuantidade(i,d){
+ carrinho[i].quantidade+=d;
+ if(carrinho[i].quantidade<=0)carrinho.splice(i,1);
+ atualizarCarrinho();
+}
+
+function abrirCarrinho(){
+ esconderTelas();
+ document.getElementById("carrinho").style.display="block";
+ window.scrollTo(0,0);
+}
+
+function voltarMenu(){
+ esconderTelas();
+ document.getElementById("menu").style.display="block";
+ window.scrollTo(0,0);
+}
+
+function esconderTelas(){
+ ["menu","carrinho","pagamento","acompanhamento"].forEach(id=>document.getElementById(id).style.display="none");
+}
+
+function irParaPagamento(){
+ if(!carrinho.length){alert("Seu carrinho está vazio!");return;}
+ let total=carrinho.reduce((s,i)=>s+i.unitario*i.quantidade,0);
+ document.getElementById("totalPagamento").textContent=dinheiro(total);
+ esconderTelas();
+ document.getElementById("pagamento").style.display="block";
+ document.querySelectorAll('input[name="pagamento"]').forEach(r=>r.checked=false);
+ document.getElementById("detalhesPagamento").innerHTML="";
+ window.scrollTo(0,0);
+}
+
+function voltarCarrinho(){
+ esconderTelas();
+ document.getElementById("carrinho").style.display="block";
+ window.scrollTo(0,0);
+}
+
+function mostrarOpcaoPagamento(){
+ let selecionado=document.querySelector('input[name="pagamento"]:checked');
+ let detalhes=document.getElementById("detalhesPagamento");
+ if(!selecionado)return;
+ if(selecionado.value==="Dinheiro"){
+  detalhes.innerHTML='<label>Vai precisar de troco? <select id="precisaTroco" onchange="mostrarTroco()"><option value="nao">Não</option><option value="sim">Sim</option></select></label><div id="campoTroco"></div>';
+ }else if(selecionado.value==="PIX"){
+  detalhes.innerHTML='<p>📱 PIX selecionado. Para receber de verdade, será necessário integrar uma chave ou QR Code PIX válido.</p>';
+ }else{
+  detalhes.innerHTML='<p>💳 '+selecionado.value+' selecionado. A cobrança real exige uma maquininha ou um provedor de pagamentos.</p>';
+ }
+}
+
+function mostrarTroco(){
+ let precisa=document.getElementById("precisaTroco").value;
+ document.getElementById("campoTroco").innerHTML=precisa==="sim"?'<label>Troco para quanto? <input id="valorTroco" type="number" min="0" step="0.01" placeholder="Ex.: 50,00" style="width:100%"></label>':"";
+}
+
+function confirmarPagamento(){
+ let selecionado=document.querySelector('input[name="pagamento"]:checked');
+ if(!selecionado){alert("Escolha uma forma de pagamento.");return;}
+ if(selecionado.value==="Dinheiro"&&document.getElementById("precisaTroco")?.value==="sim"){
+  let valor=Number(document.getElementById("valorTroco").value);
+  let total=carrinho.reduce((s,i)=>s+i.unitario*i.quantidade,0);
+  if(!valor||valor<total){alert("Informe um valor para troco igual ou maior que o total.");return;}
+ }
+ mostrarAcompanhamento(selecionado.value);
+}
+
+function mostrarAcompanhamento(forma){
+ esconderTelas();
+ let resumo=document.getElementById("resumoPedido");resumo.innerHTML="";
+ carrinho.forEach(item=>{
+  let p=document.createElement("p");
+  p.textContent=item.quantidade+"x "+item.nome+" — R$ "+dinheiro(item.unitario*item.quantidade);
+  resumo.appendChild(p);
+  if(item.extras.length){
+   let small=document.createElement("small");
+   small.textContent="Adicionais: "+item.extras.map(e=>e.nome).join(", ");
+   resumo.appendChild(small);
+  }
+ });
+ let total=carrinho.reduce((s,i)=>s+i.unitario*i.quantidade,0);
+ document.getElementById("totalFinal").textContent=dinheiro(total);
+ document.getElementById("formaFinal").textContent="Forma de pagamento: "+forma;
+ document.getElementById("acompanhamento").style.display="block";
+ window.scrollTo(0,0);
+
+ const etapas=[
+ "🟢 Pedido recebido<br>⚪ Em preparação<br>⚪ Saiu para entrega<br>⚪ Pedido entregue",
+ "✅ Pedido recebido<br>🟠 Em preparação<br>⚪ Saiu para entrega<br>⚪ Pedido entregue",
+ "✅ Pedido recebido<br>✅ Em preparação<br>🛵 Saiu para entrega<br>⚪ Pedido entregue",
+ "✅ Pedido recebido<br>✅ Em preparação<br>✅ Saiu para entrega<br>🎉 Pedido entregue"
+ ];
+ let status=document.getElementById("statusPedido");
+ status.innerHTML=etapas[0];
+ if(temporizadorStatus)clearInterval(temporizadorStatus);
+ let etapa=0;
+ temporizadorStatus=setInterval(()=>{
+  etapa++;
+  if(etapa<etapas.length)status.innerHTML=etapas[etapa];
+  else clearInterval(temporizadorStatus);
+ },8000);
+
+ carrinho=[];
+ atualizarCarrinho();
+}
+
+function novoPedido(){
+ if(temporizadorStatus)clearInterval(temporizadorStatus);
+ esconderTelas();
+ document.getElementById("menu").style.display="block";
+ window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
